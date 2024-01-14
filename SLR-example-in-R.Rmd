@@ -1,0 +1,141 @@
+---
+title: "Simple Linear Regression Example 1"
+author: "Tingting Tong"
+date: "2024-01-17"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+# Download data
+
+The dataset contains observations about income (in a range of $\$15k$ to $\$75k$) and happiness (rated on a scale of 1 to 10) in an imaginary sample of 500 people. The income values are divided by 10,000 to make the income data match the scale of the happiness scores (so a value of $\$2$ represents $\$20,000$, $\$3$ is $\$30,000$, etc.). Please download here: <https://github.com/Tongtt33/SLR/blob/main/income.data.csv>.
+
+# Packages needed (install using install.packages(name))
+
+'ggplot2' is a plotting package that provides helpful commands to create complex plots from data in a data frame.
+
+The ‘ggpubr’ package provides some easy-to-use functions for creating and customizing ‘ggplot2’.
+
+
+```{r, message=FALSE,warning=FALSE}
+library(ggplot2)
+library(ggpubr)
+```
+
+# Step 1: Read the data into R
+
+Before reading any data, set the R working directory to the location of the data.
+
+```{r}
+setwd("D:/AUM interview/Teaching demo")
+getwd()
+```
+
+```{r}
+income.data <- read.csv(file="income.data.csv",header=T)
+```
+
+After you’ve loaded the data, check that it has been read in correctly using "head()"
+```{r}
+head(income.data,5)
+```
+
+
+# Step 2: Visualize the Data (Assumption check - Lecture 2)
+
+The first step in this single predictor modeling process is to determine whether or not it looks as though a linear relationship exists between the two variables. We can test this visually with a scatter plot to see if the distribution of data points could be described with a straight line.
+ 
+```{r}
+plot(happiness ~ income, data = income.data)
+```
+
+The relationship looks roughly linear, so we can proceed with the simple linear regression model.
+
+
+
+# Step 3: Perform the linear regression analysis
+
+Let’s see if there’s a linear relationship between income and happiness in our survey of 500 people with incomes ranging from $\$15k$ to $\$75k$, where happiness is measured on a scale of 1 to 10.
+
+To perform a simple linear regression analysis and check the results, you need to run two lines of code. The first line of code makes the linear model, and the second line prints out the basic information of the model:
+
+ 
+```{r}
+income.happiness.lm <- lm(happiness ~ income, data = income.data)
+
+income.happiness.lm
+```
+
+In this case, the estimated y-intercept is $\beta_0$ = 0.2043 and the estimated slope is $\beta_1$ = 0.7138.
+Thus, the final predict line is: $\hat{happiness}=0.2042+0.7138\times income$.
+
+# Step 4: Evaluating the Quality of the Model (Including checking for homoscedasticity) (Lecture 2)
+
+The information we obtain by typing income.happiness.lm shows us the regression
+model’s basic values, but does not tell us anything about the model’s quality.
+In fact, there are many different ways to evaluate a regression model’s
+quality. The function summary()
+extracts some additional information that we can use to determine how
+well the data fit the resulting model.
+
+```{r, message=FALSE}
+summary(income.happiness.lm)
+```
+
+
+# Step 5: Visualize the results with a graph
+
+Basic plot:
+
+```{r}
+plot(happiness ~ income, data = income.data)
+abline(income.happiness.lm)
+```
+
+
+
+Follow 4 steps to visualize the results using 'ggplot2':
+
+## 1. Plot the data points on a graph
+
+```{r}
+income.graph<-ggplot(income.data, aes(x=income, y=happiness))+
+                     geom_point(col="orange")
+income.graph
+```
+
+## 2. Add the linear regression line to the plotted data
+
+Add the regression line using geom_smooth() and typing in lm as your method for creating the line. This will add the line of the linear regression as well as the standard error of the estimate as a light grey stripe surrounding the line:
+
+```{r,  message=FALSE}
+
+income.graph <- income.graph + geom_smooth(method="lm", col="black")
+
+income.graph
+```
+
+
+## 3. Add the equation for the regression line.
+
+```{r, message=FALSE}
+income.graph <- income.graph +
+  stat_regline_equation(label.x = 3, label.y = 7)
+
+income.graph
+```
+
+## 4. Make the graph ready for publication
+
+We can make custom labels using labs().
+
+```{r, message=FALSE}
+income.graph +
+  labs(title = "Reported happiness as a function of income",
+      x = "Income (x$10,000)",
+      y = "Happiness score (0 to 10)")
+```
+
+
